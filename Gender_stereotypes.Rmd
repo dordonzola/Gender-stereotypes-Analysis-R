@@ -319,31 +319,3 @@ gender_df %>% ggplot(aes(x = Prescriptions_women_communion_5_sensitive, y = Pres
 gender_df %>% ggplot(aes(x = Prescriptions_men_communion_5_sensitive, y = Prescriptions_men_agency_3_competitive)) + geom_jitter(colour="#87CEEB", alpha=0.2)+ ggtitle("Wrażliwość a rywalizacja u mężczyzn") + labs(x = "Wrażliwość", y="Rywalizacja")
 
 ```
-2. Analiza zmiennych przez dane demograficzne - Dorota
-Sensitive men - box plot 
-Sensitive women - box plot
-
-Competetive men - box plot 
-Competetive women - box plot
-
-
-Każdy z wykresów przez gender, major, country
-
-16 wykresów
-
-3. Krzyżowe
-
-Ja:
-
-Sensitive men x sensitive women - geom_bar 
-
-Competetive men x competetive women - geom_bar
-
-
-Dorota:
-
-Sensitive men x competetive men - jitter
-
-Sensitive women x competetive women - jitter
-
-
