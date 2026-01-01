@@ -1,0 +1,50 @@
+📊 Gender Stereotypes Analysis (R)
+
+
+📝 Overview
+
+This project analyzes gender stereotypes using data from the international Towards Gender Harmony study.
+The focus is on how sensitivity and competitiveness are perceived in women and men across different demographic groups.
+
+The analysis is presented as an R Markdown HTML report.
+
+📂 Data
+
+- Source: Towards Gender Harmony (open-access)
+- Observations: 33,313
+- Countries: 62
+- Years: 2018–2020
+- Dataset link: https://osf.io/trkyc/files/w6bt3
+
+🎯 Research focus
+
+- Perception of sensitivity and competitiveness by gender
+- Cross-cultural differences
+- Differences by field of study and selected demographics
+- Relationships between sensitivity and competitiveness
+
+🛠 Tools
+
+- R 
+- R Markdown
+- tidyverse
+- ggplot2
+- dplyr
+- rio / readxl
+
+📈 Methods
+
+- Data cleaning and recoding
+- Exploratory data analysis (EDA)
+- Boxplots, bar charts, density plots, jitter plots
+- Cross-variable comparisons
+
+📁 Files
+
+- Raporty.Rmd – main analysis report
+- DataBaseTGH.xlsx – external dataset
+
+🚧 Status
+
+🔄 Work in progress
+Planned: statistical testing, expanded cross-variable analysis, refined visuals
