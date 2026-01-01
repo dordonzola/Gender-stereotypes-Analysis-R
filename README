@@ -39,11 +39,6 @@ The analysis is presented as an R Markdown HTML report.
 - Boxplots, bar charts, density plots, jitter plots
 - Cross-variable comparisons
 
-📁 Files
-
-- Raporty.Rmd – main analysis report
-- DataBaseTGH.xlsx – external dataset
-
 🚧 Status
 
 🔄 Work in progress
