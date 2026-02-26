@@ -1,24 +1,34 @@
 ---
-title: "Raporty"
-output: html_document
-date: "2025-12-06"
+title: "Raport - stereotypy dotyczące płci"
+author: "Alicja Kuśnierz, Dorota Jabłońska"
+date: "2026-02-11"
+output:
+  html_document:
+    df_print: paged
+  pdf_document:
+    fig_width: 10
+    fig_height: 8
 ---
-# Raport - stereotypy dotyczące płci
 
 
 
 ## O zestawie danych
 
-#### Źrodło danych: 
-https://osf.io/trkyc/files/w6bt3
+#### **Źrodło danych:** https://osf.io/trkyc/files/w6bt3
+#### **Metoda zbierania danych:** CAWI (SurveyMonkey, Qualtrics), PAPI(rzadkie przypadki)
+#### **Okres realizacji:** 2018–2020
+#### **Jednostka analizy:** pojedynczy respondent
 
-#### Podsumowanie projektu *Towards Gender Harmony*
+
+
+
+## Charakterystyka zakresu tematycznego *Towards Gender Harmony*
 
 Projekt *Towards Gender Harmony* to międzynarodowe przedsięwzięcie badawcze analizujące współczesne rozumienie męskości i kobiecości oraz funkcjonowanie stereotypów płciowych w różnych kulturach. W badaniu uczestniczyło ponad **160 naukowców z 62 krajów**, obejmujących **6 kontynentów**, co czyni je jednym z najszerszych projektów tego typu w naukach społecznych.
 
-Badania przeprowadzono w latach **2018–2020**, głównie wśród studentów. Zebrano **33 313 obserwacji** i **286 zmiennych**, obejmujących m.in. postawy wobec ról płciowych, stereotypy płciowe, samoocenę tożsamości płciowej oraz dane demograficzne.
+Badania przeprowadzono w latach **2018–2020**, głównie wśród studentów. Zastosowano dobór dogodnościowy, zatem badanie nie może być uogólnione na populację. Zebrano **33 313 obserwacji** i **286 zmiennych**, obejmujących m.in. postawy wobec ról płciowych, stereotypy płciowe, samoocenę tożsamości płciowej oraz dane demograficzne.
 
-##### Główne cele projektu
+## Główne cele projektu
 - identyfikacja cech i zachowań przypisywanych kobietom i mężczyznom we współczesnych kulturach;  
 - analiza podobieństw i różnic w **stereotypach płciowych** między krajami;  
 - badanie zjawiska **precarious manhood** (przekonania, że męskość jest trudna do zdobycia i łatwa do utraty);  
@@ -38,30 +48,69 @@ Celem naszego raportu jest przyjrzenie się postawom społecznym względem dwóc
 - Wiek
 - Dziedzin nauki, w których specjalizują się respondenci
 
-```{r}
+Dodatkowo przyjrzymy się bliżej poniższym pytaniom badawczym, wykonując dla nich testy statystyczne:
 
+
+## Pytania badawcze 
+- Czy postrzegany pożądany poziom **rywalizacji kobiet** różni się w zależności od płci respondenta?
+- Czy postrzegany pożądany poziom **rywalizacji mężczyzn** różni się w zależności od płci respondenta?
+- Czy postrzegany pożądany poziom **wrażliwości kobiet** różni się w zależności od płci respondenta?
+- Czy postrzegany pożądany poziom **wrażliwości mężczyzn** różni się w zależności od płci respondenta?
+
+
+## Zmienne niezależne
+
+- Wiek (braki danych: 5.6%) - zmienna ilorazowa
+- Płeć (braki danych: 3%) - zmienna dychotomiczna
+- Kraj (braki danych: 0%) - zmienna nominalna
+- Dziedzina wykształcenia (braki danych: 7%) - zmienna nominalna
+
+**Strategia dotycząca brakow danych: Analizy przeprowadzono na obserwacjach z dostępnymi danymi dla analizowanych zmiennych.**
+
+
+## Zmienne zależne
+
+Postawy względem:
+
+- rywalizacji: u kobiet i mężczyzn - zmienna porządkowa 1(wcale nie pożądana cecha) - 7(bardzo pożądana cecha)
+- wrażliwość u kobiet i mężczyzn - zmienna porządkowa 1(wcale nie pożądana cecha) - 7(bardzo pożądana cecha)
+
+**Braki danych dla tej kategorii zmiennych - około 1% zatem przy analizie nie uwzględniamy komórek z brakami**
+
+
+## Wczytanie danych i bibliotek
+```{r, include=FALSE}
+options(tinytex.verbose = TRUE)
+```
+
+```{r}
 library(tidyverse)
 library(readxl)
 library(rio)
+library(dplyr)
+library(rstatix)
 
-#setwd("C:\\Users\\alicj\\Documents\\R")
+
 gender_df <- import("DataBaseTGH.xlsx")
+gender_df <- gender_df %>% select(Id, Country, Age, Gender, Sexual_orientation, Highest_education, Major, Prescriptions_women_agency_3_competitive, Prescriptions_men_agency_3_competitive, Prescriptions_women_communion_5_sensitive, Prescriptions_men_communion_5_sensitive)
 
 ```
-
-
+#### Braki danych
+```{r}
+colSums(is.na(gender_df))
+```
 
 ## Dane demograficzne
 
 #### Ilość respondentów wg państw
-```{r}
+```{r, fig.width=10, fig.height=8}
 
 country_counts <- gender_df %>% group_by(Country) %>% summarise(Id = n()) %>% ungroup() %>% arrange(desc(Id))
 
 country_counts %>% slice(1:31) %>% ggplot(aes(x = reorder(Country, Id), y = Id)) + geom_col(fill = "#2E8B57") + coord_flip() + labs(title = "Państwa wg. liczebności #1", x = "Country", y = "Count") + theme_minimal() + theme(plot.title = element_text(face = "bold")) +labs(y="Liczebność", x="Państwo")
 
 ```
-```{r}
+```{r, fig.width=10, fig.height=8}
 
 country_counts %>% slice(32:62) %>% ggplot(aes(x = reorder(Country, Id), y = Id)) + geom_col(fill = "#2E8B57") + coord_flip() + scale_y_continuous(limits = c(0, 2500)) + labs(title = "Państwa wg. liczebności #2", x = "Country", y = "Count") + theme_minimal() + theme(plot.title = element_text(face = "bold")) +labs(y="Liczebność", x="Państwo")
 ```
@@ -88,62 +137,8 @@ gender_df %>% na.omit() %>% mutate(Gender_Recoded = case_when(Gender == "Female"
 
 ```
 
-
-#### Ilość respondentów wg orientacji seksualnej
-```{r}
-gender_df <- gender_df %>%
-  mutate(Sexual_orientation = factor(Sexual_orientation,
-                        levels = names(sort(table(Sexual_orientation)))))
-
-gender_df %>%
-  na.omit() %>%
-  count(Sexual_orientation) %>%
-  ggplot(aes(x = Sexual_orientation, y = n)) +
-  geom_col(fill = "#87CEEB") +
-  coord_flip() +
-  theme_minimal() +
-  labs(x = "Orientacja seksualna", y = "Liczebność")
-
-
-```
-
-
-#### Ilość respondentów wg stanu cywilnego
-
-```{r}
-gender_df <- gender_df %>%
-  mutate(Marital_status = factor(Marital_status,
-                        levels = names(sort(table(Marital_status)))))
-
-gender_df %>%
-  na.omit() %>%
-  count(Marital_status) %>%
-  ggplot(aes(x = Marital_status, y = n)) +
-  geom_col(fill = "#87CEEB") +
-  coord_flip() +
-  theme_minimal() +
-  labs(x = "Stan cywilny", y = "Liczebność")
-
-```
-
-#### Ilość respondentów wg wykształcenia
-
-```{r}
-gender_df <- gender_df %>%
-  mutate(Highest_education = factor(Highest_education,
-                        levels = names(sort(table(Highest_education)))))
-
-gender_df %>%
-  na.omit() %>%
-  count(Highest_education) %>%
-  ggplot(aes(x = Highest_education, y = n)) +
-  geom_col(fill = "#87CEEB") +
-  coord_flip() +
-  theme_minimal() +
-  labs(x = "Poziom edukacji", y = "Liczebność")
-
-```
-```{r}
+#### Ilość respondentów według kierunku studiów
+```{r, fig.width=10, fig.height=8}
 
 conditions <- c(
   "Engineering",
@@ -159,10 +154,10 @@ conditions <- c(
   "Computer Science",
   "Psychology (General)",
   "Sport Sciences",
+  "Psychology with the goal of becoming a  clinical practitioner",
   "Psychology with the goal of becoming a clinical practitioner",
   "Theology/Religious Studies",
-  "Other/more than one",
-  "Psychology with the goal of becoming a clinical practitioner"
+  "Other/more than one"
 )
 
 replacement <- c(
@@ -180,74 +175,126 @@ replacement <- c(
   "Psychology",
   "Sport Sciences",
   "Psychology",
+  "Psychology",
   "Theology/Religious Studies",
-  "Other/more than one",
-  "Psychology"
+  "Other/more than one"
 )
 
-#gender_df <-gender_df_raw
-#gender_df_raw <- gender_df
-
-library(dplyr)
 
 map <- setNames(replacement, conditions)
 
 gender_df$Major <- recode(gender_df$Major, !!!map)
 
 
-
 gender_df <- gender_df %>%
   mutate(Major = factor(Major,
                         levels = names(sort(table(Major)))))
 
-
-gender_df %>%
-  na.omit() %>%
+gender_df  %>%
+  na.omit() %>% 
   count(Major) %>%
   ggplot(aes(x = Major, y = n)) +
   geom_col(fill = "#87CEEB") +
   coord_flip() +
   theme_minimal() +
-  labs(x = "Dziedina", y = "Liczebność")
-
-
-```
-
-
-
-#### Ilość respondentów wg religii
-```{r}
-
-gender_df$Faith[gender_df$Faith == "Ortodox Christian (Greek, Russian, Armenian etc.)"] <- "Orthodox"
-
-
-gender_df <- gender_df %>%
-  mutate(Faith = factor(Faith,
-                        levels = names(sort(table(Faith)))))
-
-
-gender_df %>% na.omit() %>% ggplot(aes(Faith)) + geom_bar(fill = "#87CEEB") + coord_flip() + theme_minimal() + labs(x = "Religia", y="Liczebność")
+  labs(x = "Kierunek", y = "Liczebność")
 
 ```
+
 
 ## Analiza zmiennych
 
-#### Rywalizacja
+### Rywalizacja
 ```{r}
-rywalizacja_df <- gender_df %>% select(Id,Prescriptions_women_agency_3_competitive, Prescriptions_men_agency_3_competitive) 
+rywalizacja_df <- gender_df %>% select(Id,Gender,Prescriptions_women_agency_3_competitive, Prescriptions_men_agency_3_competitive) 
 
-names(rywalizacja_df) <- c("Id","Kobiety", "Mężczyźni")   
+names(rywalizacja_df) <- c("Id","Płeć", "Kobiety", "Mężczyźni")   
 
 rywalizacja_df %>% pivot_longer(
   cols=c(Kobiety, Mężczyźni),
   names_to= "measure",
-    values_to= "value" ) %>% 
+    values_to= "value" ) %>% filter(!is.na(value)) %>% 
   mutate(measure=factor(measure, levels=c("Kobiety", "Mężczyźni")))%>% 
-  ggplot(aes(x=measure, y=value, fill = measure)) + geom_boxplot() + theme(axis.text.x = element_text(size=7, angle=45)) + labs(x = "Płeć", y="Rywalizacja 1-7") + scale_fill_manual(values = c(
-    "Kobiety" = "#2E8B57",      
-    "Mężczyźni" = "#87CEEB"    
-  )) + ggtitle("Postrzeganie rywalizacji u płci")
+  ggplot(aes(x=measure, y=value, fill = measure)) + geom_boxplot() + labs(x = "Płeć", y="Rywalizacja 1-7") + scale_fill_manual(values = c(
+    "Kobiety" = "#87CEEB",      
+    "Mężczyźni" = "#2E8B57"    
+  )) + ggtitle("Postrzeganie rywalizacji u płci") + theme_minimal()
 ```
+```{r}
+rywalizacja_df %>% filter (Płeć == "Female") %>% pivot_longer(
+  cols=c(Kobiety, Mężczyźni),
+  names_to= "measure",
+    values_to= "value" ) %>% filter(!is.na(value)) %>% 
+  mutate(measure=factor(measure, levels=c("Kobiety", "Mężczyźni")))%>% 
+  ggplot(aes(x=measure, y=value, fill = measure)) + geom_boxplot()  + labs(x = "Płeć", y="Rywalizacja 1-7") + scale_fill_manual(values = c(
+    "Kobiety" = "#87CEEB",      
+    "Mężczyźni" = "#2E8B57"    
+  )) + ggtitle("Postrzeganie rywalizacji wg kobiet") + theme_minimal()
+```
+```{r}
+rywalizacja_df %>% filter (Płeć == "Male") %>% pivot_longer(
+  cols=c(Kobiety, Mężczyźni),
+  names_to= "measure",
+    values_to= "value" ) %>% filter(!is.na(value)) %>% 
+  mutate(measure=factor(measure, levels=c("Kobiety", "Mężczyźni")))%>% 
+  ggplot(aes(x=measure, y=value, fill = measure)) + geom_boxplot() + labs(x = "Płeć", y="Rywalizacja 1-7") + scale_fill_manual(values = c(
+    "Kobiety" = "#87CEEB",      
+    "Mężczyźni" = "#2E8B57"    
+  )) + ggtitle("Postrzeganie rywalizacji wg mężczyzn") + theme_minimal()
+```
+
+
+
+
+#### Czy postrzegany pożądany poziom **rywalizacji kobiet** różni się w zależności od płci respondenta?
+
+**Stosujemy Test U Manna-Whitneya**
+```{r}
+rywalizacja_df2 <- rywalizacja_df %>%
+  filter(Płeć %in% c("Female", "Male"))
+
+rywalizacja_df2$Płeć <- factor(rywalizacja_df2$Płeć)
+
+wilcox.test(Kobiety ~ Płeć,
+            data = rywalizacja_df2,
+            exact = FALSE)
+```
+
+**Poziom istotności p < 2.2e-16 wskazuje na istnienie różnic pomiędzy grupami. Należy zbadać jak silne są różnice.**
+
+```{r}
+wilcox_effsize(rywalizacja_df2, Kobiety ~ Płeć)
+```
+
+**Możemy zauważyć, że różnice są niewielkie**
+
+
+
+
+
+
+#### Czy postrzegany pożądany poziom **rywalizacji mężczyzn** różni się w zależności od płci respondenta?
+
+```{r}
+rywalizacja_df2 <- rywalizacja_df %>%
+  filter(Płeć %in% c("Female", "Male"))
+
+rywalizacja_df2$Płeć <- factor(rywalizacja_df2$Płeć)
+
+wilcox.test(Mężczyźni ~ Płeć,
+            data = rywalizacja_df2,
+            exact = FALSE)
+
+
+```
+**Poziom istotności p = 0.01986 wskazuje na istnienie różnic pomiędzy grupami. Należy zbadać jak silne są różnice.**
+
+```{r}
+wilcox_effsize(rywalizacja_df2, Mężczyźni ~ Płeć)
+```
+**Możemy zauważyć, że różnice są niewielkie**
+
+
 ##### Różne kraje
 ```{r}
 rywalizacja_kraje_df <- gender_df %>% filter(Country == "Poland" | Country == "USA" | Country == "Brazil" | Country == "Netherlands" | Country == "Pakistan" | Country == "Iran" | Country == "India" | Country == "Germany" | Country == "China" | Country == "Japan" ) %>% select(Id,Country,Prescriptions_women_agency_3_competitive, Prescriptions_men_agency_3_competitive) 
@@ -257,32 +304,121 @@ names(rywalizacja_kraje_df) <- c("Id","Kraj","Kobiety", "Mężczyźni")
 rywalizacja_kraje_df %>% pivot_longer(
   cols=c(Kobiety, Mężczyźni),
   names_to= "measure",
-    values_to= "value" ) %>% 
+    values_to= "value" ) %>% filter(!is.na(value)) %>%  
   ggplot(aes(y=value, x=Kraj, fill = measure)) + geom_boxplot() + theme(axis.text.x = element_text(size=7, angle=45)) + labs(x = "Kraj zamieszkania", y="Rywalizacja 1-7")+ scale_fill_manual(values = c(
-    "Kobiety" = "#2E8B57",     
-    "Mężczyźni" = "#87CEEB"   
-  )) + ggtitle("Postrzeganie rywalizacji wg. kraju zamieszkania")
+    "Kobiety" = "#87CEEB",     
+    "Mężczyźni" = "#2E8B57"   
+  )) + ggtitle("Postrzeganie rywalizacji wg. kraju zamieszkania") 
 ```
 
 
-#### Wrażliwość
+#### Różne dziedziny
+```{r}
+rywalizacja_dziedzina_df <- gender_df %>% filter(Major =="Engineering" |  Major =="Psychology" |  Major =="Business" | Major =="Social Sciences" | Major =="Sciences" | Major =="Mathematics/Statistics" |  Major == "Medicine" | Major == "Sport Sciences") %>% select(Id,Major,Prescriptions_women_agency_3_competitive, Prescriptions_men_agency_3_competitive) 
+
+names(rywalizacja_dziedzina_df) <- c("Id","Dziedzina","Kobiety", "Mężczyźni")   
+
+rywalizacja_dziedzina_df %>% pivot_longer(
+  cols=c(Kobiety, Mężczyźni),
+  names_to= "measure",
+    values_to= "value" ) %>% filter(!is.na(value)) %>%  
+  ggplot(aes(y=value, x=Dziedzina, fill = measure)) + geom_boxplot() + theme(axis.text.x = element_text(size=7, angle=45)) + labs(x = "Dziedziny wykształcenia", y="Rywalizacja 1-7") + ggtitle("Postrzeganie rywalizacji wg. dziedziny wykształcenia")+ scale_fill_manual(values = c(
+    "Kobiety" = "#87CEEB",      
+    "Mężczyźni" = "#2E8B57")) 
+```
+
+### Wrażliwość
 
 ```{r}
-wrazliwosc_df <- gender_df %>% select(Id,Prescriptions_women_communion_5_sensitive, Prescriptions_men_communion_5_sensitive) 
+wrazliwosc_df <- gender_df %>% select(Id,Gender,Prescriptions_women_communion_5_sensitive, Prescriptions_men_communion_5_sensitive) 
 
-names(wrazliwosc_df) <- c("Id","Kobiety", "Mężczyźni")   
+names(wrazliwosc_df) <- c("Id","Płeć", "Kobiety", "Mężczyźni")   
 
 wrazliwosc_df %>% pivot_longer(
   cols=c(Kobiety, Mężczyźni),
   names_to= "measure",
-    values_to= "value" ) %>% 
-  mutate(measure=factor(measure, levels=c("Kobiety", "Mężczyźni")))%>% 
+    values_to= "value" ) %>% filter(!is.na(value)) %>%  
+  mutate(measure=factor(measure, levels=c("Kobiety", "Mężczyźni")))%>%  
   ggplot(aes(x=measure, y=value, fill = measure)) + geom_boxplot() + theme(axis.text.x = element_text(size=7, angle=45)) + labs(x = "Płeć", y="Wrażliwość 1-7") + scale_fill_manual(values = c(
-    "Kobiety" = "#2E8B57",      # różowy
-    "Mężczyźni" = "#87CEEB"    # niebieski
-  )) + ggtitle("Postrzeganie wrażliwości u płci")
+    "Kobiety" = "#87CEEB",      
+    "Mężczyźni" = "#2E8B57"    
+  )) + ggtitle("Postrzeganie wrażliwości u płci") + theme_minimal()
 ```
-##### Różne kraje
+
+```{r}
+wrazliwosc_df %>% filter(Płeć == "Female") %>% pivot_longer(
+  cols=c(Kobiety, Mężczyźni),
+  names_to= "measure",
+    values_to= "value" ) %>% filter(!is.na(value)) %>%  
+  mutate(measure=factor(measure, levels=c("Kobiety", "Mężczyźni")))%>%  
+  ggplot(aes(x=measure, y=value, fill = measure)) + geom_boxplot() + theme(axis.text.x = element_text(size=7, angle=45)) + labs(x = "Płeć", y="Wrażliwość 1-7") + scale_fill_manual(values = c(
+    "Kobiety" = "#87CEEB",      
+    "Mężczyźni" = "#2E8B57"    
+  )) + ggtitle("Postrzeganie wrażliwości wg kobiet") + theme_minimal()
+```
+```{r}
+wrazliwosc_df %>% filter(Płeć == "Male") %>% pivot_longer(
+  cols=c(Kobiety, Mężczyźni),
+  names_to= "measure",
+    values_to= "value" ) %>% filter(!is.na(value)) %>%  
+  mutate(measure=factor(measure, levels=c("Kobiety", "Mężczyźni")))%>%  
+  ggplot(aes(x=measure, y=value, fill = measure)) + geom_boxplot() + theme(axis.text.x = element_text(size=7, angle=45)) + labs(x = "Płeć", y="Wrażliwość 1-7") + scale_fill_manual(values = c(
+    "Kobiety" = "#87CEEB",      
+    "Mężczyźni" = "#2E8B57"    
+  )) + ggtitle("Postrzeganie wrażliwości wg mężczyzn") + theme_minimal()
+```
+
+
+
+#### Czy postrzegany pożądany poziom **wrażliwości kobiet** różni się w zależności od płci respondenta?
+
+```{r}
+wrazliwosc_df2 <- wrazliwosc_df %>%
+  filter(Płeć %in% c("Female", "Male"))
+
+wrazliwosc_df2$Płeć <- factor(wrazliwosc_df2$Płeć)
+
+wilcox.test(Kobiety ~ Płeć,
+            data = wrazliwosc_df2,
+            exact = FALSE)
+```
+**Poziom istotności p = 4.76e-10 wskazuje na istnienie różnic pomiędzy grupami. Należy zbadać jak silne są różnice.**
+
+```{r}
+wilcox_effsize(wrazliwosc_df2, Kobiety ~ Płeć)
+```
+**Zaobserwowane różnice są niewielkie**
+
+
+
+
+
+
+#### Czy postrzegany pożądany poziom **wrażliwości mężczyzn** różni się w zależności od płci respondenta?
+
+```{r}
+wrazliwosc_df2 <- wrazliwosc_df %>%
+  filter(Płeć %in% c("Female", "Male"))
+
+wrazliwosc_df2$Płeć <- factor(wrazliwosc_df2$Płeć)
+
+wilcox.test(Mężczyźni ~ Płeć,
+            data = wrazliwosc_df2,
+            exact = FALSE)
+
+
+```
+**Poziom istotności p < 2.2e-16 wskazuje na istnienie różnic pomiędzy grupami. Należy zbadać jak silne są różnice.**
+
+```{r}
+wilcox_effsize(wrazliwosc_df2, Mężczyźni ~ Płeć)
+```
+
+**Zaobserwowane różnice są niewielkie**
+
+
+#### Różne kraje
+
 ```{r}
 wrazliwosc_kraje_df <- gender_df %>% filter(Country == "Poland" | Country == "USA" | Country == "Brazil" | Country == "Netherlands" | Country == "Pakistan" | Country == "Iran" | Country == "India" | Country == "Germany" | Country == "China" | Country == "Japan" ) %>% select(Id,Country,Prescriptions_women_communion_5_sensitive, Prescriptions_men_communion_5_sensitive) 
 
@@ -291,31 +427,72 @@ names(wrazliwosc_kraje_df) <- c("Id","Kraj","Kobiety", "Mężczyźni")
 wrazliwosc_kraje_df %>% pivot_longer(
   cols=c(Kobiety, Mężczyźni),
   names_to= "measure",
-    values_to= "value" ) %>% 
+    values_to= "value" )%>% filter(!is.na(value)) %>% 
   ggplot(aes(y=value, x=Kraj, fill = measure)) + geom_boxplot() + theme(axis.text.x = element_text(size=7, angle=45)) + labs(x = "Kraj zamieszkania", y="Wrażliwość 1-7")+ scale_fill_manual(values = c(
-    "Kobiety" = "#2E8B57",      
-    "Mężczyźni" = "#87CEEB"    
-  )) + ggtitle("Postrzeganie wrażliwości wg. kraju zamieszkania")
+    "Kobiety" = "#87CEEB",      
+    "Mężczyźni" = "#2E8B57"    
+  )) + ggtitle("Postrzeganie wrażliwości wg. kraju zamieszkania") 
 ```
+
+#### Różne dziedziny
+
 ```{r}
-wrazliwosc_kraje_df <- gender_df %>% filter(Major =="Engineering" |  Major =="Psychology" |  Major =="Business" | Major =="Social Sciences" | Major =="Sciences" | Major =="Mathematics/Statistics" |  Major == "Medicine") %>% select(Id,Major,Prescriptions_women_communion_5_sensitive, Prescriptions_men_communion_5_sensitive) 
+wrazliwosc_dziedziny_df <- gender_df %>% filter(Major =="Engineering" |  Major =="Psychology" |  Major =="Business" | Major =="Social Sciences" | Major =="Sciences" | Major =="Mathematics/Statistics" |  Major == "Medicine" | Major == "Sport Sciences") %>% select(Id,Major,Prescriptions_women_communion_5_sensitive, Prescriptions_men_communion_5_sensitive) 
 
-names(wrazliwosc_kraje_df) <- c("Id","Dziedzina","Kobiety", "Mężczyźni")   
+names(wrazliwosc_dziedziny_df) <- c("Id","Dziedzina","Kobiety", "Mężczyźni")   
 
-wrazliwosc_kraje_df %>% pivot_longer(
+wrazliwosc_dziedziny_df %>% pivot_longer(
   cols=c(Kobiety, Mężczyźni),
   names_to= "measure",
-    values_to= "value" ) %>% 
+    values_to= "value" ) %>% filter(!is.na(value)) %>%  
   ggplot(aes(y=value, x=Dziedzina, fill = measure)) + geom_boxplot() + theme(axis.text.x = element_text(size=7, angle=45)) + labs(x = "Dziedziny wykształcenia", y="Wrażliwość 1-7") + ggtitle("Postrzeganie wrażliwości wg. dziedziny wykształcenia")+ scale_fill_manual(values = c(
-    "Kobiety" = "#2E8B57",      
-    "Mężczyźni" = "#87CEEB"    
+    "Kobiety" = "#87CEEB",      
+    "Mężczyźni" = "#2E8B57"    
   )) 
 ```
+
 ```{r}
-gender_df %>% ggplot(aes(x = Prescriptions_women_communion_5_sensitive, y = Prescriptions_women_agency_3_competitive)) + geom_jitter(colour="#2E8B57", alpha=0.2)+ ggtitle("Wrażliwość a rywalizacja u kobiet") + labs(x = "Wrażliwość", y="Rywalizacja")
+gender_df %>%filter(!is.na(Prescriptions_women_communion_5_sensitive))%>%filter(!is.na(Prescriptions_women_agency_3_competitive)) %>%   ggplot(aes(x = Prescriptions_women_communion_5_sensitive, y = Prescriptions_women_agency_3_competitive)) + geom_jitter(colour="#2E8B57", alpha=0.2)+ ggtitle("Wrażliwość a rywalizacja u kobiet") + labs(x = "Wrażliwość", y="Rywalizacja") + theme_minimal()
+
+gender_df %>% na.omit() %>% ggplot(aes(x = factor(Prescriptions_women_communion_5_sensitive
+), fill = factor(Prescriptions_women_agency_3_competitive))) + geom_bar(position="dodge", colour="#2E8B57") + ggtitle("Wrażliwość a rywalizacja u kobiet") + labs(x = "Wrażliwość", y="Liczebność", fill="Rywalizacja") + theme_minimal()
 
 ```
+
 ```{r}
-gender_df %>% ggplot(aes(x = Prescriptions_men_communion_5_sensitive, y = Prescriptions_men_agency_3_competitive)) + geom_jitter(colour="#87CEEB", alpha=0.2)+ ggtitle("Wrażliwość a rywalizacja u mężczyzn") + labs(x = "Wrażliwość", y="Rywalizacja")
+gender_df %>% filter(!is.na(Prescriptions_men_communion_5_sensitive)) %>%  filter(!is.na(Prescriptions_men_agency_3_competitive)) %>% ggplot(aes(x = Prescriptions_men_communion_5_sensitive, y = Prescriptions_men_agency_3_competitive)) + geom_jitter(colour="#87CEEB", alpha=0.2)+ ggtitle("Wrażliwość a rywalizacja u mężczyzn") + labs(x = "Wrażliwość", y="Rywalizacja") + theme_minimal()
+
+gender_df %>% na.omit() %>% ggplot(aes(x = factor(Prescriptions_men_communion_5_sensitive
+), fill = factor(Prescriptions_men_agency_3_competitive))) + geom_bar(position="dodge", colour="#87CEEB") + ggtitle("Wrażliwość a rywalizacja u mężczyzn") + labs(x = "Wrażliwość", y="Liczebność", fill="Rywalizacja") + theme_minimal()
 
 ```
+
+## Wnioski
+
+#### Odpowiedzi na pytania badawcze
+
+- Czy postrzegany pożądany poziom **rywalizacji kobiet** różni się w zależności od płci respondenta?
+- Czy postrzegany pożądany poziom **rywalizacji mężczyzn** różni się w zależności od płci respondenta?
+- Czy postrzegany pożądany poziom **wrażliwości kobiet** różni się w zależności od płci respondenta?
+- Czy postrzegany pożądany poziom **wrażliwości mężczyzn** różni się w zależności od płci respondenta?
+
+Analiza statystyczna wykazała, że dla każdego z powyższych pytań badawczych istnieje różnica w postrzeganiu badanej kwestii w zależności od płci respondenta, jednak jest ona niewielka. Biorąc pod uwagę wielkość zestawu danych możemy dojść do wniosku, że uzyskane wyniki są istotne statystycznie ale nie merytorycznie.
+
+#### Dodatkowe wnioski
+
+Na podstawie wykresów można wysnuć wiele dodatkowych wniosków, poniżej kilka przykładowych:
+
+- Mężczyźni postrzegają pożądany poziom rywalizacji oraz wrażliwości za bardziej zbliżony dla obu płci niż kobiety, co możemy zaobserwować na podstawie bardziej zbliżonego położenia boxplotów (choć różnica nie jest znacząca)
+
+- Pożądany poziom rywalizacji jest najbardziej zróżnicowany pomiędzy płciami dla Niemiec, USA i Polski, gdzie wskazywane wartości nie mają części wspólnej
+
+- Pożądany poziom rywalizacji jest najmniej zróżnicowany pomiędzy płciami dla Iranu - mediana jest ta sama dla obu płci
+
+- Pożądany poziom wrażliwości jest najmniej zróżnicowany pomiędzy płciami dla Iranu i Japoni - mediana jest ta sama dla obu płci
+
+- Pożądany poziom wrażliwości jest najmniej zróżnicowany pomiędzy płciami dla Brazylii
+
+
+**Wyniki badań nie mogą zostać uogólnoine na populacje ze względu na nielosowy charakter doboru.**
+
+
