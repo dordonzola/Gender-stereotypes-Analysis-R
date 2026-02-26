@@ -46,12 +46,3 @@ The results are presented as an **R Markdown HTML report**.
   - jitter plots  
 - Cross-variable comparisons  
 
----
-
-### 🚧 Project Status
-🔄 **Work in progress**
-
-Planned next steps:
-- Statistical testing  
-- Extended cross-variable analysis  
-- Refined and improved visualizations  
